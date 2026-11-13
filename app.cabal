@@ -1,0 +1,142 @@
+cabal-version:      3.0
+name:               app
+version:            0.0.0.1
+--synopsis:           
+--description:
+license:            BSD-3-Clause
+license-file:       LICENSE
+author:             Harley Eades III
+maintainer:         harley.eades@gmail.com
+copyright:          Harley Eades III @ 2026
+category:           Web
+build-type:         Simple
+--extra-doc-files:    CHANGELOG.md
+
+-- Only builds with vanilla GHC (used to prerender the static HTML).
+common server-only
+  if impl(ghcjs) || arch(javascript) || arch(wasm32)
+    buildable: False
+
+-- Only builds with the WASM / JavaScript backends.
+common client-only
+  if impl(ghcjs) || arch(javascript) || arch(wasm32)
+    buildable: True
+  else
+    buildable: False
+
+common common-options  
+  ghc-options:
+    -funbox-strict-fields -O2 -ferror-spans -fspecialise-aggressively -Wall 
+    -Widentities 
+    -Wincomplete-record-updates 
+    -Wincomplete-uni-patterns 
+    -Wmissing-export-lists 
+    -Wmissing-home-modules 
+    -Wpartial-fields 
+    -Wredundant-constraints
+    -Wno-name-shadowing 
+  default-language:
+    Haskell2010
+  default-extensions:     
+    ImportQualifiedPost
+    OverloadedStrings
+    InstanceSigs
+    LambdaCase
+    ViewPatterns
+    PatternSynonyms
+    GADTs    
+    DeriveGeneric
+    ScopedTypeVariables
+    QuasiQuotes
+    TemplateHaskell
+  build-depends: 
+    base < 5
+   ,text
+
+common client-options
+  if arch(wasm32)
+    ghc-options:
+      -no-hs-main -optl-mexec-model=reactor "-optl-Wl,--export=hs_start"
+    cpp-options:
+      -DWASM
+  build-depends: 
+    miso >= 1.15  
+
+common library-options
+  build-depends: 
+       miso >= 1.15
+      ,template-haskell
+      ,mtl
+
+library
+  import:
+      common-options
+     ,library-options
+  hs-source-dirs:
+      src/client
+  exposed-modules:            
+      View
+      ViewModel
+      Model
+  other-modules:
+      Paths_app      
+  autogen-modules:
+      Paths_app        
+
+executable app
+  import: client-only, common-options, client-options
+  main-is:
+    Main.hs
+  build-depends: 
+     app
+  other-modules:
+    Paths_app      
+  autogen-modules:
+    Paths_app 
+  hs-source-dirs:
+    client
+
+library server
+  import: 
+     server-only
+    ,common-options
+  hs-source-dirs: 
+    src/server
+  exposed-modules:    
+  build-depends:
+     directory
+    ,optparse-applicative
+
+executable app-cli
+  import: 
+     server-only
+    ,common-options
+  main-is:
+    Main.hs
+  hs-source-dirs:
+    server
+  build-depends: 
+    app:server   
+
+test-suite app-client-test
+  import: 
+    common-options
+   ,library-options
+  type: 
+    exitcode-stdio-1.0
+  main-is: 
+    Spec.hs
+  build-depends:
+    QuickCheck           
+   ,hspec
+   ,app
+  build-tool-depends: 
+    hspec-discover:hspec-discover
+  other-modules:
+    Paths_app
+    Test.Helpers
+    ViewModelSpec
+  autogen-modules:
+    Paths_app 
+  hs-source-dirs:
+    test/client

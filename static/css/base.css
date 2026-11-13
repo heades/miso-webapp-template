@@ -1,0 +1,21 @@
+:root {
+    --primary-color: #4a6bff;
+    --primary-hover: #3451d1;
+    --secondary-color: #ff4a6b;
+    --secondary-hover: #d13451;
+    --background: #f7f9fc;
+    --text-color: #333;
+    --shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+body {
+  font-family : 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display : flex;
+  justify-content : center;
+  align-items : center;
+  height : 100vh;
+  margin : 0;
+  background-color : var(--background);
+  color : var(--text-color);
+}

@@ -1,0 +1,16 @@
+cradle:
+  cabal:
+    - path: "./src/client"
+      component: "lib:app"
+
+    - path: "./client"
+      component: "app:exe:app"
+
+    - path: "./src/server"
+      component: "app:lib:server"
+
+    - path: "./server"
+      component: "app:exe:app-cli"
+
+    - path: "./test/client"
+      component: "app:test:app-client-test"
